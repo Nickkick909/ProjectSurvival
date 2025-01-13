@@ -17,11 +17,15 @@ public class PlayerMovement : MonoBehaviour
 
     CharacterController controller;
     float xRotation;
-    
+
+    bool cursorLocked = false;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        cursorLocked = true;
     }
 
     
@@ -29,6 +33,17 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleMovement();
         HandleLook();
+
+        if (Input.GetKeyDown(KeyCode.Escape)) 
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        if (!cursorLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
     }
 
     void HandleMovement()
