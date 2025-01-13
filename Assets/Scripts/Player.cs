@@ -26,6 +26,10 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         cursorLocked = true;
+
+        Vector3 savedPlayerPosition = new Vector3(PlayerPrefs.GetFloat("playerXPosition", 0), PlayerPrefs.GetFloat("playerYPosition", 1), PlayerPrefs.GetFloat("playerXPosition", 0));
+
+        transform.position = savedPlayerPosition;
     }
 
     
@@ -44,6 +48,13 @@ public class PlayerMovement : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
         }
 
+    }
+
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetFloat("playerXPosition", transform.position.x);
+        PlayerPrefs.SetFloat("playerYPosition", transform.position.y);
+        PlayerPrefs.SetFloat("playerZPosition", transform.position.z);
     }
 
     void HandleMovement()
