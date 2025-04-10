@@ -10,14 +10,34 @@ public class TimeManager : MonoBehaviour
     [SerializeField] Light sunLight;
     [SerializeField] Gradient sunGradient;
     [SerializeField] Gradient ambientGradient;
+    [SerializeField] Gradient  fogGradient;
     [SerializeField, Range(0, MINUTUES_IN_DAY)] float timeOfDay = START_OF_FIRST_DAY;
 
+    const int sunRise = 300;
+    const int sunFullStart = 420;
+    const int sunFullEnd = 1020;
+    const int sunset = 1110;
 
-    
+
+
     [SerializeField, Tooltip("How many real time seconds = 1 minute")] float timeSpeedFactor = 5.0f;
 
     [SerializeField] TMP_Text timeDisplay;
 
+    public static TimeManager instance { get; private set; }
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            instance = this;
+        }
+
+    }
 
     private void Start()
     {
@@ -29,7 +49,7 @@ public class TimeManager : MonoBehaviour
         {
             // Delta time is in seconds in seconds
             // We want each day to be 24 minutes (instead of 24 hours)
-            timeOfDay += Time.deltaTime / timeSpeedFactor; 
+            timeOfDay += Time.deltaTime / timeSpeedFactor;
             timeOfDay %= MINUTUES_IN_DAY;
         }
 
@@ -44,9 +64,30 @@ public class TimeManager : MonoBehaviour
 
     private void UpdateLighting(float time)
     {
+        Debug.Log(time);
         RenderSettings.ambientLight = ambientGradient.Evaluate(time);
+        RenderSettings.fogColor = fogGradient.Evaluate(time);
         sunLight.color = sunGradient.Evaluate(time);
         sunLight.transform.rotation = Quaternion.Euler(new Vector3((time * 360) - 90, 180f, 0));
+
+        float currentMinute = time * MINUTUES_IN_DAY;
+        if (currentMinute > sunFullStart && currentMinute < sunFullEnd)
+        {
+            sunLight.intensity = 1;
+            RenderSettings.ambientIntensity = 1;
+            RenderSettings.fogDensity = 0.01f;
+        }
+        else if (currentMinute > sunset || currentMinute < sunRise)
+        {
+            sunLight.intensity = 0;
+            RenderSettings.ambientIntensity = 0;
+            RenderSettings.fogDensity = 0.20f;
+        } else
+        {
+            sunLight.intensity = 0.5f;
+            RenderSettings.ambientIntensity = 0.5f;
+            RenderSettings.fogDensity = 0.05f;
+        }
     }
 
     private void UpdateWatchTime(int time)
@@ -74,5 +115,10 @@ public class TimeManager : MonoBehaviour
         string watchDisplayString = String.Format("{0:00}:{1:00}", hour, minute);
 
         timeDisplay.text = watchDisplayString + " " + amOrPm;
+    }
+
+    public int GetHour()
+    {
+        return Mathf.FloorToInt(timeOfDay) / 60;
     }
 }

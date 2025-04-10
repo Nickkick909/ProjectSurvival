@@ -47,6 +47,12 @@ public class InteractWithObject : MonoBehaviour
 
                 currentObject = interactTemp;
 
+                // Check for key input
+                if (Input.GetKeyDown(currentObject.interactKey))
+                {
+                    currentObject.HandleInteract();
+                }
+
 
             }
         } else

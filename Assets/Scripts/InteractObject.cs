@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class InteractObject : MonoBehaviour
 {
-    Outline outline;
+    [SerializeField] Outline outline;
+    bool isTargeted = false;
+    [SerializeField] InteractType interactType;
+    [SerializeField] ItemType itemType;
+
+    public KeyCode interactKey;
 
     void Start()
     {
@@ -28,11 +33,35 @@ public class InteractObject : MonoBehaviour
 
     public void HighLightObject()
     {
-        outline.enabled = true;
+        isTargeted = true;
+        if (outline != null)
+            outline.enabled = true;
     }
 
     public void RemoveHighLight()
     {
-        outline.enabled = false;
+        isTargeted = false;
+        if(outline != null) 
+            outline.enabled = false;
     }
+
+    public virtual void HandleInteract()
+    {
+        if (interactType == InteractType.Pickup)
+        {
+            InventoryObject item = new InventoryObject();
+            item.quantity = 1;
+            item.type = itemType;
+            item.worldItem = gameObject;
+
+            Inventory.pickUpItem(item);
+
+            Destroy(gameObject);
+        }
+    }
+}
+
+public enum InteractType
+{
+    Pickup,
 }
